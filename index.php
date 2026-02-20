@@ -1,19 +1,44 @@
 <?php
 
+use MyApp\View;
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
 require 'vendor/autoload.php';
 
-$app = new \Slim\App;
+$app = new \Slim\App([
+        'settings' => [
+            'displayErrorDetails' => true
+        ]
+]);
+
+//Container depency injection
+class Servico {}
+$servico = new Servico();
+
+//Container Pimple
+$container = $app->getContainer();
+$container['Home'] = function () {
+    return new MyApp\controllers\Home(new MyApp\View);
+};
+
+$app->get('/servico', function (Request $request, Response $response) {
+    $servico = $this->get('servico');
+    var_dump($servico);
+});
+
+//Controllers como servico
+$app->get('/usuario', 'Home:index');
+
+$app->run();
 
 //Padrao PSR7
-$app->get('/postagens', function (Request $request, Response $response) {
-    //Escreve no corpo da resposta utilizando o padrao PSR7
-    $response->getBody()->write("Lista postagens");
-    return $response;
-    //echo "";
-});
+// $app->get('/postagens', function (Request $request, Response $response) {
+//     //Escreve no corpo da resposta utilizando o padrao PSR7
+//     $response->getBody()->write("Lista postagens");
+//     return $response;
+//     //echo "";
+// });
 
 /* 
 Tipos de requisicao ou Verbos HTTP
@@ -25,32 +50,34 @@ delete -> Deletar dados no servidor (Delete)
 
 */
 
-$app->delete('/usuarios/remove/{id}', function (Request $request, Response $response) {
-    
-    $id = $request->getAttribute('id');
-    return $response->getBody()->write("Sucesso ao deletar " . $id);
-});
+// $app->delete('/usuarios/remove/{id}', function (Request $request, Response $response) {
 
-$app->put('/usuarios/atualiza', function (Request $request, Response $response) {
-    //Recupera post ($_POST)
-    $post = $request->getParsedBody();
-    $id = $post['id'];
-    $nome = $post['nome'];
-    $email = $post['email'];
+//     $id = $request->getAttribute('id');
+//     return $response->getBody()->write("Sucesso ao deletar " . $id);
+// });
+
+// $app->put('/usuarios/atualiza', function (Request $request, Response $response) {
+//     //Recupera post ($_POST)
+//     $post = $request->getParsedBody();
+//     $id = $post['id'];
+//     $nome = $post['nome'];
+//     $email = $post['email'];
 
 
-    return $response->getBody()->write("Sucesso ao atualizar " . $id);
-});
+//     return $response->getBody()->write("Sucesso ao atualizar " . $id);
+// });
 
-$app->post('/usuarios/adiciona', function (Request $request, Response $response) {
-    //Recupera post ($_POST)
-    $post = $request->getParsedBody();
-    $nome = $post['nome'];
-    $email = $post['email'];
-    return $response->getBody()->write($nome . " - " . $email);
-});
+// $app->post('/usuarios/adiciona', function (Request $request, Response $response) {
+//     //Recupera post ($_POST)
+//     $post = $request->getParsedBody();
+//     $nome = $post['nome'];
+//     $email = $post['email'];
+//     return $response->getBody()->write($nome . " - " . $email);
+// });
 
-$app->run()
+
+//------------------------------------------------------------------------------------
+
 
 // $app->get('/postagens2', function () {
 //     echo "Lista postagens";
@@ -108,8 +135,3 @@ $app->run()
 //     });
 
 // });
-
-
-
-
-?>
